@@ -1,0 +1,45 @@
+/dts-v1/;
+/plugin/;
+
+//IRQ_TYPE_LEVEL_HIGH	= 0x00000004,
+//IRQ_TYPE_LEVEL_LOW	= 0x00000008,
+
+//GIC_SPI = 0
+//GIC_PPI = 1
+
+/ {
+	compatible = "allwinner,sun50i-h5";
+	
+	fragment@0 {
+		target = <&pio>;
+		__overlay__ {
+			mcp23017_int: pin_int {
+			pins = "PG9";
+			function = "gpio_in";
+			};
+		};
+	};
+	
+	fragment@1 {
+		target = <&i2c0>;
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			mcp: mcp23017@20 {
+				compatible = "microchip,mcp23017-i2c";
+				pinctrl-names = "default";
+				reg = <0x20>;
+				//pinctrl-0 = <&mcp23017_int>;
+				//interrupt-parent = <&pio>;
+				//interrupts = <0 201 4>; // PG9
+				status = "okay";
+			};
+		};
+		__fixups__ {
+			i2c0 = "/fragment@1:target:0";
+		};
+	};
+};
